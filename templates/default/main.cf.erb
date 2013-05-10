@@ -4,6 +4,7 @@
 ###
 
 biff = no
+inet_protocols = ipv4
 append_dot_mydomain = no
 smtpd_use_tls = <%= node['postfix']['smtpd_use_tls'] %>
 <% if node['postfix']['smtpd_use_tls'] == "yes" -%>
@@ -27,16 +28,10 @@ myorigin = <%= node['postfix']['myorigin'] %>
 smtpd_banner = $myhostname ESMTP $mail_name
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
-mydestination = <%= node['postfix']['myhostname'] %>, <%= node['hostname'] %>, localhost.localdomain, localhost
-<% if node['postfix']['mail_type'] == "master" -%>
-relayhost =
-mynetworks = <%= node['postfix']['mail_relay_networks'] %>
-inet_interfaces = <%= node['postfix']['inet_interfaces'] || 'all' %>
-<% else -%>
+mydestination = <%= node['postfix']['myhostname'] %>, <%= node['hostname'] %>, localhost.localdomain, localhost, <%= Array(node['postfix']['extradomains']).join(",") %>
 relayhost = <%= node['postfix']['relayhost'] %>
 mynetworks = <%= node['postfix']['mail_relay_networks'] %>
 inet_interfaces = <%= node['postfix']['inet_interfaces'] || 'loopback-only' %>
-<% end -%>
 <% if node['postfix']['use_procmail'] -%>
 mailbox_command = /usr/bin/procmail -a "$EXTENSION"
 <% end -%>
